@@ -132,4 +132,10 @@
   <data name="WelcomeTo" xml:space="preserve">
     <value>Welcome to</value>
   </data>
+  <data name="RemoveFromRecentTools" xml:space="preserve">
+    <value>Remove from recent tools</value>
+  </data>
+  <data name="ClearRecentTools" xml:space="preserve">
+    <value>Clear recent tools</value>
+  </data>
 </root>

@@ -1,5 +1,6 @@
 ﻿@namespace DevToys.Blazor.Pages.SubPages
 @using DevToys.Localization.Strings.ToolGroupPage;
+@using DevToys.Localization.Strings.MainWindow;
 @using DevToys.Blazor.Core.Helpers;
 @inherits MefComponentBase
 
@@ -32,9 +33,19 @@
         }
     </Header>
     <GroupHeaderTemplate Context="item">
-        <TextBlock Appearance="@TextBlockAppearance.Subtitle" Text="@item" />
+        <div class="tool-group-header">
+            <TextBlock Appearance="@TextBlockAppearance.Subtitle" Text="@item" />
+            @if (ViewModel.IsAllToolsGroup && item == MainWindow.RecentToolsDisplayTitle)
+            {
+                <Button Appearance="@ButtonAppearance.Stealth"
+                        @onclick="GuiToolProvider.ClearRecentTools">
+                    @ToolGroupPage.ClearRecentTools
+                </Button>
+            }
+        </div>
     </GroupHeaderTemplate>
-    <ItemTemplate Context="item">
+    <GroupedItemTemplate Context="context">
+        @{ var item = context.Item; }
         <div class="tool-group-grid-view-item">
             <div class="icon">
                 <FontIcon Height="64"
@@ -49,6 +60,16 @@
                 <TextBlock Appearance="@TextBlockAppearance.Caption" Text="@item.Description" />
             </div>
             <div class="buttons" @onclick:stopPropagation="true">
+                @if (ViewModel.IsAllToolsGroup && context.Key == MainWindow.RecentToolsDisplayTitle)
+                {
+                    <Button Class="button"
+                            Appearance="@ButtonAppearance.Neutral"
+                            ToolTip="@ToolGroupPage.RemoveFromRecentTools"
+                            aria-label="@ToolGroupPage.RemoveFromRecentTools"
+                            @onclick="() => GuiToolProvider.RemoveRecentTool(item)">
+                        <FontIcon Class="fonticon" Glyph="@('\uF369')" />
+                    </Button>
+                }
                 <Button HorizontalAlignment="UIHorizontalAlignment.Right"
                         Class="button"
                         Appearance="@ButtonAppearance.Neutral"
@@ -58,7 +79,7 @@
                 </Button>
             </div>
         </div>
-    </ItemTemplate>
+    </GroupedItemTemplate>
     <Footer>
         @if (ViewModel.IsAllToolsGroup)
         {

@@ -31,7 +31,7 @@
 
                 @if (ItemsSource is not null)
                 {
-                    Guard.IsNotNull(ItemTemplate);
+                    Guard.IsTrue(ItemTemplate is not null || GroupedItemTemplate is not null);
 
                     foreach (IGrouping<TKey, TElement> group in ItemsSource)
                     {
@@ -57,7 +57,14 @@
                                              @onclick="() => OnItemClickAsync(item)"
                                              @onkeydown="(KeyboardEventArgs ev) => OnKeyDownAsync(ev, item)"
                                              @onkeydown:stopPropagation="@IsActuallyEnabled">
-                                            @ItemTemplate(item)
+                                            @if (GroupedItemTemplate is not null)
+                                            {
+                                                @GroupedItemTemplate((group.Key, item))
+                                            }
+                                            else
+                                            {
+                                                @(ItemTemplate!(item))
+                                            }
                                         </div>
                                     </li>
                                 }

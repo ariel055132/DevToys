@@ -17,7 +17,7 @@ namespace DevToys.Core.Tools;
 /// Provides information about tools in the app.
 /// </summary>
 [Export(typeof(GuiToolProvider))]
-public sealed partial class GuiToolProvider
+public sealed partial class GuiToolProvider : IDisposable
 {
     public static readonly GuiToolViewItem NoResultFoundItem
         = new(
@@ -43,6 +43,7 @@ public sealed partial class GuiToolProvider
     private readonly ISettingsProvider _settingsProvider;
     private readonly IReadOnlyList<GuiToolInstance> _footerToolInstances;
     private readonly IReadOnlyList<GuiToolInstance> _bodyToolInstances;
+    private readonly List<GuiToolViewItem> _recentToolViewItems = new();
 
     private ObservableCollection<INotifyPropertyChanged?>? _headerAndBodyToolViewItems;
     private ReadOnlyObservableCollection<INotifyPropertyChanged?>? _headerAndBodyToolViewItemsReadOnly;
@@ -71,6 +72,7 @@ public sealed partial class GuiToolProvider
             out _bodyToolInstances);
 
         AllTools = allTools;
+        _settingsProvider.SettingChanged += SettingsProvider_SettingChanged;
     }
 
     /// <summary>
@@ -123,6 +125,16 @@ public sealed partial class GuiToolProvider
     public event EventHandler? FavoriteToolsChanged;
 
     /// <summary>
+    /// Raised after recent tools or their visibility changed.
+    /// </summary>
+    public event EventHandler? RecentToolsChanged;
+
+    public void Dispose()
+    {
+        _settingsProvider.SettingChanged -= SettingsProvider_SettingChanged;
+    }
+
+    /// <summary>
     /// Sets a tool as the most recently used one.
     /// </summary>
     public void SetMostRecentUsedTool(GuiToolInstance guiToolInstance)
@@ -135,6 +147,7 @@ public sealed partial class GuiToolProvider
         if (string.Equals(guiToolInstance.InternalComponentName, recentTool1, StringComparison.Ordinal))
         {
             // The tool is already the most recently used one.
+            return;
         }
         else if (string.Equals(guiToolInstance.InternalComponentName, recentTool2, StringComparison.Ordinal))
         {
@@ -151,6 +164,103 @@ public sealed partial class GuiToolProvider
         }
 
         LogSetMostRecentUsedTool(guiToolInstance.InternalComponentName);
+        OnRecentToolsChanged();
+    }
+
+    /// <summary>
+    /// Removes a tool from recent history without changing the tool or its settings.
+    /// </summary>
+    public void RemoveRecentTool(GuiToolInstance guiToolInstance)
+    {
+        Guard.IsNotNull(guiToolInstance);
+
+        string[] recentTools = GetRecentToolNames();
+        if (!recentTools.Contains(guiToolInstance.InternalComponentName, StringComparer.Ordinal))
+        {
+            return;
+        }
+
+        SaveRecentTools(recentTools.Where(name =>
+            !string.IsNullOrEmpty(name)
+            && !string.Equals(name, guiToolInstance.InternalComponentName, StringComparison.Ordinal)).ToArray());
+    }
+
+    /// <summary>
+    /// Clears recent history, including hidden records, without changing favorites or tool settings.
+    /// </summary>
+    public void ClearRecentTools()
+    {
+        if (GetRecentToolNames().Any(name => !string.IsNullOrEmpty(name)))
+        {
+            SaveRecentTools(Array.Empty<string>());
+        }
+    }
+
+    /// <summary>
+    /// Gets whether a menu item belongs to the recent tools section.
+    /// </summary>
+    public bool IsRecentToolViewItem(GuiToolViewItem item) => _recentToolViewItems.Contains(item);
+
+    private string[] GetRecentToolNames() =>
+        new[]
+        {
+            _settingsProvider.GetSetting(PredefinedSettings.RecentTool1),
+            _settingsProvider.GetSetting(PredefinedSettings.RecentTool2),
+            _settingsProvider.GetSetting(PredefinedSettings.RecentTool3)
+        };
+
+    private void SaveRecentTools(string[] recentTools)
+    {
+        _settingsProvider.SetSetting(PredefinedSettings.RecentTool1, recentTools.ElementAtOrDefault(0) ?? string.Empty);
+        _settingsProvider.SetSetting(PredefinedSettings.RecentTool2, recentTools.ElementAtOrDefault(1) ?? string.Empty);
+        _settingsProvider.SetSetting(PredefinedSettings.RecentTool3, recentTools.ElementAtOrDefault(2) ?? string.Empty);
+        OnRecentToolsChanged();
+    }
+
+    private void SettingsProvider_SettingChanged(object? sender, SettingChangedEventArgs e)
+    {
+        if (e.SettingName == PredefinedSettings.ShowMostRecentTools.Name)
+        {
+            OnRecentToolsChanged();
+        }
+    }
+
+    private void OnRecentToolsChanged()
+    {
+        if (_headerAndBodyToolViewItems is not null)
+        {
+            // Keep existing items so selection and the other groups retain their state.
+            GuiToolViewItem[] previousItems = _recentToolViewItems.ToArray();
+            foreach (GuiToolViewItem item in previousItems)
+            {
+                _headerAndBodyToolViewItems.Remove(item);
+            }
+            _recentToolViewItems.Clear();
+
+            if (_separatorAfterRecentTools is not null)
+            {
+                _headerAndBodyToolViewItems.Remove(_separatorAfterRecentTools);
+                _separatorAfterRecentTools = null;
+            }
+
+            Guard.IsNotNull(_separatorAfterAllToolsItem);
+            int index = _headerAndBodyToolViewItems.IndexOf(_separatorAfterAllToolsItem) + 1;
+            foreach (GuiToolInstance tool in GetMostRecentUsedTools())
+            {
+                GuiToolViewItem item = previousItems.FirstOrDefault(item => item.ToolInstance == tool)
+                    ?? new GuiToolViewItem(tool);
+                _recentToolViewItems.Add(item);
+                _headerAndBodyToolViewItems.Insert(index++, item);
+            }
+
+            if (_recentToolViewItems.Count > 0)
+            {
+                _separatorAfterRecentTools = new SeparatorViewItem();
+                _headerAndBodyToolViewItems.Insert(index, _separatorAfterRecentTools);
+            }
+        }
+
+        RecentToolsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -550,7 +660,9 @@ public sealed partial class GuiToolProvider
         foreach (GuiToolInstance recentTool in GetMostRecentUsedTools())
         {
             anyRecentTool = true;
-            yield return new GuiToolViewItem(recentTool);
+            var item = new GuiToolViewItem(recentTool);
+            _recentToolViewItems.Add(item);
+            yield return item;
         }
 
         if (anyRecentTool)

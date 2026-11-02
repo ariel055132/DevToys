@@ -61,6 +61,15 @@ namespace DevToys.Localization.Strings.ToolGroupPage {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear recent tools.
+        /// </summary>
+        public static string ClearRecentTools {
+            get {
+                return ResourceManager.GetString("ClearRecentTools", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Not finding what you&apos;re looking for?.
         /// </summary>
         public static string NotFindingTool {
@@ -96,6 +105,15 @@ namespace DevToys.Localization.Strings.ToolGroupPage {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Remove from recent tools.
+        /// </summary>
+        public static string RemoveFromRecentTools {
+            get {
+                return ResourceManager.GetString("RemoveFromRecentTools", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Welcome to.
         /// </summary>
