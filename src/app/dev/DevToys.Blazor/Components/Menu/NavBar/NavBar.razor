@@ -125,7 +125,7 @@
                         {
                             @foreach (TElement item in MenuItemsSource)
                             {
-                                <NavBarItem Item="item"
+                                <NavBarItem @key="item" Item="item"
                                             OwnerNavBar="@this"
                                             TElement="TElement"
                                             TSearchElement="TSearchElement"

@@ -30,10 +30,37 @@ public partial class ToolGroup : MefComponentBase, IFocusable
     internal ToolGroupPageViewModel ViewModel { get; set; } = default!;
 
     [Import]
+    internal GuiToolProvider GuiToolProvider { get; set; } = default!;
+
+    [Import]
     internal CommandLineLauncherService CommandLineLauncherService { get; set; } = default!;
 
     [Parameter]
     public GroupViewItem? GroupViewItem { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GuiToolProvider.RecentToolsChanged += GuiToolProvider_RecentToolsChanged;
+    }
+
+    private void GuiToolProvider_RecentToolsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            if (GroupViewItem is not null)
+            {
+                ViewModel.Load(GroupViewItem);
+                StateHasChanged();
+            }
+        });
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        GuiToolProvider.RecentToolsChanged -= GuiToolProvider_RecentToolsChanged;
+        return base.DisposeAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

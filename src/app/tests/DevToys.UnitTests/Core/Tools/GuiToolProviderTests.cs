@@ -63,11 +63,13 @@ public class GuiToolProviderTests : MefBasedTest
 
         guiToolProvider.SetMostRecentUsedTool(((GroupViewItem)menuItems[2]).Children[0].ToolInstance);
 
-        // Menu should be unchanged.
-        menuItems.Should().HaveCount(3);
+        // Recent tools are reflected immediately in the existing menu collection.
+        menuItems.Should().HaveCount(5);
         menuItems[0].Should().BeOfType<GroupViewItem>();
         menuItems[1].Should().BeOfType<SeparatorViewItem>();
-        menuItems[2].Should().BeOfType<GroupViewItem>();
+        menuItems[2].Should().BeOfType<GuiToolViewItem>();
+        menuItems[3].Should().BeOfType<SeparatorViewItem>();
+        menuItems[4].Should().BeOfType<GroupViewItem>();
     }
 
     [Fact]

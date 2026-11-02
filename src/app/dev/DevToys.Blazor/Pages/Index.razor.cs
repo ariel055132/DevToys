@@ -78,6 +78,7 @@ public partial class Index : MefComponentBase
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        GuiToolProvider.RecentToolsChanged += GuiToolProvider_RecentToolsChanged;
         UIDialogService.IsDialogOpenedChanged += DialogService_IsDialogOpenedChanged;
         ViewModel.SelectedMenuItemChanged += ViewModel_SelectedMenuItemChanged;
         ViewModel.SelectedMenuItem ??= ViewModel.HeaderAndBodyToolViewItems[0];
@@ -199,12 +200,11 @@ public partial class Index : MefComponentBase
         Guard.IsNotNull(args.ItemValue);
 
         // Create the context menu for the items in the NavBar.
-        if (args.ContextMenuItems.Count == 0)
+        args.ContextMenuItems.Clear();
+        if (args.ItemValue is GuiToolViewItem item)
         {
             // Open in new window
-            if (args.ItemValue is GuiToolViewItem item)
-            {
-                args.ContextMenuItems.Add(
+            args.ContextMenuItems.Add(
                 new ContextMenuItem
                 {
                     IconGlyph = '\uEE7A',
@@ -212,14 +212,40 @@ public partial class Index : MefComponentBase
                     OnClick = EventCallback.Factory.Create<DropDownListItem>(this, OnOpenInNewWindowContextMenuItemClick)
                 });
 
-                void OnOpenInNewWindowContextMenuItemClick()
+            void OnOpenInNewWindowContextMenuItemClick()
+            {
+                CommandLineLauncherService.LaunchTool(item.ToolInstance.InternalComponentName);
+            }
+
+            if (GuiToolProvider.IsRecentToolViewItem(item))
+            {
+                args.ContextMenuItems.Add(new ContextMenuItem
                 {
-                    CommandLineLauncherService.LaunchTool(item.ToolInstance.InternalComponentName);
-                }
+                    IconGlyph = '\uF369',
+                    Text = ToolGroupPage.RemoveFromRecentTools,
+                    OnClick = EventCallback.Factory.Create<DropDownListItem>(this,
+                        () => GuiToolProvider.RemoveRecentTool(item.ToolInstance))
+                });
+                args.ContextMenuItems.Add(new ContextMenuItem
+                {
+                    Text = ToolGroupPage.ClearRecentTools,
+                    OnClick = EventCallback.Factory.Create<DropDownListItem>(this, GuiToolProvider.ClearRecentTools)
+                });
             }
         }
 
         return Task.CompletedTask;
+    }
+
+    private void GuiToolProvider_RecentToolsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        GuiToolProvider.RecentToolsChanged -= GuiToolProvider_RecentToolsChanged;
+        return base.DisposeAsync();
     }
 
     private void OnMouseUp(MouseEventArgs ev)

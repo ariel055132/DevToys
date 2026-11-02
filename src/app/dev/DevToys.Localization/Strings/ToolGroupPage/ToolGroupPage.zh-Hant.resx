@@ -132,4 +132,10 @@
   <data name="WelcomeTo" xml:space="preserve">
     <value>歡迎來到</value>
   </data>
+  <data name="RemoveFromRecentTools" xml:space="preserve">
+    <value>從最近工具移除</value>
+  </data>
+  <data name="ClearRecentTools" xml:space="preserve">
+    <value>清空最近工具</value>
+  </data>
 </root>

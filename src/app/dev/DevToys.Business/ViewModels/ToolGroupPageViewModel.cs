@@ -32,6 +32,8 @@ internal sealed partial class ToolGroupPageViewModel : ObservableRecipient
     {
         Guard.IsNotNull(groupViewItem);
 
+        IsAllToolsGroup = false;
+
         if (string.Equals(groupViewItem.InternalName, ReservedGuiToolGroupNames.AllTools, StringComparison.OrdinalIgnoreCase))
         {
             Tools = LoadAllTools();

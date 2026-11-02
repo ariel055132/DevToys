@@ -21,6 +21,9 @@ public partial class GridView<TKey, TElement> : JSStyledComponentBase, IFocusabl
     public RenderFragment<TElement> ItemTemplate { get; set; } = default!;
 
     [Parameter]
+    public RenderFragment<(TKey Key, TElement Item)>? GroupedItemTemplate { get; set; }
+
+    [Parameter]
     public ILookup<TKey, TElement>? ItemsSource { get; set; }
 
     [Parameter]

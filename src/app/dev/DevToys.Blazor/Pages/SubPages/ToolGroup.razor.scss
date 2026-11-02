@@ -68,6 +68,13 @@
     padding: var(--tool-page-padding);
     transform: translateZ(0);
 
+    .tool-group-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
     .tool-group-grid-view-item {
         height: 134px;
         max-height: 134px;
@@ -115,6 +122,9 @@
         }
 
         .buttons {
+            display: flex;
+            gap: 4px;
+            align-items: flex-start;
             grid-area: buttons;
             margin-left: 16px;
             top: 0px;
