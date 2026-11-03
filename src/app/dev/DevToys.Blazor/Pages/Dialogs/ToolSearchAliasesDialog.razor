@@ -1,0 +1,65 @@
+@namespace DevToys.Blazor.Pages.Dialogs
+@using Strings = DevToys.Localization.Strings.ToolPage.ToolPage
+@inherits MefComponentBase
+
+<Dialog @ref="_dialog"
+        IsOpen="_isOpen"
+        Dismissible="true"
+        OnClosed="OnClosed"
+        Class="search-aliases-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="@(Id + "-title")">
+    <Content>
+        <StackPanel Orientation="UIOrientation.Vertical" Spacing="12">
+            <h2 id="@(Id + "-title")" class="text-block type-title">@Strings.SearchAliases</h2>
+            <TextBlock Appearance="TextBlockAppearance.BodyStrong" Text="@Tool.LongOrShortDisplayTitle" />
+            <TextBlock Text="@Strings.SearchAliasesDescription" />
+            <div class="search-aliases-list">
+                @if (ViewModel.Aliases.Count == 0)
+                {
+                    <TextBlock Text="@Strings.NoSearchAliases" />
+                }
+                @for (int i = 0; i < ViewModel.Aliases.Count; i++)
+                {
+                    var entry = ViewModel.Aliases[i];
+                    string inputId = $"{Id}-alias-{i}";
+                    string label = string.Format(Strings.SearchAliasNumber, i + 1);
+                    <div @key="entry" class="search-aliases-row">
+                        <label for="@inputId" class="text-block type-body">@label</label>
+                        <div class="search-aliases-input-row">
+                            <div class="text-box-container">
+                                <input id="@inputId"
+                                       class="text-box"
+                                       type="text"
+                                       value="@entry.Text"
+                                       autocomplete="off"
+                                       @oninput="@(e => ViewModel.Update(entry, e.Value?.ToString() ?? string.Empty))" />
+                                <div class="text-box-underline"></div>
+                            </div>
+                            <Button Appearance="ButtonAppearance.Stealth"
+                                    aria-label="@string.Format(Strings.RemoveSearchAlias, i + 1)"
+                                    ToolTip="@string.Format(Strings.RemoveSearchAlias, i + 1)"
+                                    @onclick="@(() => ViewModel.Remove(entry))">
+                                <FontIcon Glyph="@('\uF369')" />
+                            </Button>
+                        </div>
+                    </div>
+                }
+            </div>
+            <Button HorizontalAlignment="UIHorizontalAlignment.Left" @onclick="ViewModel.Add">
+                @Strings.AddSearchAlias
+            </Button>
+            @if (ViewModel.Error is not null)
+            {
+                <div role="alert" class="text-block type-body">@ViewModel.Error</div>
+            }
+        </StackPanel>
+    </Content>
+    <Footer>
+        <StackPanel Orientation="UIOrientation.Horizontal" HorizontalAlignment="UIHorizontalAlignment.Right" Spacing="12">
+            <Button @onclick="Cancel">@Strings.CancelSearchAliases</Button>
+            <Button Appearance="ButtonAppearance.Accent" @onclick="Save">@Strings.SaveSearchAliases</Button>
+        </StackPanel>
+    </Footer>
+</Dialog>

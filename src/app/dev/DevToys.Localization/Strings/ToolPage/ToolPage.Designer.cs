@@ -86,5 +86,95 @@ namespace DevToys.Localization.Strings.ToolPage {
                 return ResourceManager.GetString("RemoveFromFavorites", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized string similar to Search aliases.
+        /// </summary>
+        public static string SearchAliases {
+            get {
+                return ResourceManager.GetString("SearchAliases", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add names you use to find this tool. Changes apply only after you select Save..
+        /// </summary>
+        public static string SearchAliasesDescription {
+            get {
+                return ResourceManager.GetString("SearchAliasesDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No search aliases yet..
+        /// </summary>
+        public static string NoSearchAliases {
+            get {
+                return ResourceManager.GetString("NoSearchAliases", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Alias {0}.
+        /// </summary>
+        public static string SearchAliasNumber {
+            get {
+                return ResourceManager.GetString("SearchAliasNumber", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove alias {0}.
+        /// </summary>
+        public static string RemoveSearchAlias {
+            get {
+                return ResourceManager.GetString("RemoveSearchAlias", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add alias.
+        /// </summary>
+        public static string AddSearchAlias {
+            get {
+                return ResourceManager.GetString("AddSearchAlias", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string CancelSearchAliases {
+            get {
+                return ResourceManager.GetString("CancelSearchAliases", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string SaveSearchAliases {
+            get {
+                return ResourceManager.GetString("SaveSearchAliases", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Aliases cannot be blank. Enter a name or remove the empty row..
+        /// </summary>
+        public static string EmptySearchAliasError {
+            get {
+                return ResourceManager.GetString("EmptySearchAliasError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This tool has duplicate aliases. Letter case and surrounding spaces are ignored..
+        /// </summary>
+        public static string DuplicateSearchAliasError {
+            get {
+                return ResourceManager.GetString("DuplicateSearchAliasError", resourceCulture);
+            }
+        }
+
     }
 }

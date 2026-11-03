@@ -1,0 +1,32 @@
+.search-aliases-dialog {
+    width: 560px;
+
+    .search-aliases-list {
+        max-height: min(35vh, 260px);
+        overflow-y: auto;
+    }
+
+    .search-aliases-row {
+        margin-bottom: 12px;
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+        }
+    }
+
+    .search-aliases-input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .text-box-container {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    .dialog-footer button {
+        min-width: 100px;
+    }
+}
