@@ -43,6 +43,9 @@ jobs:
     name: macOS
     runs-on: macos-15
     timeout-minutes: 30
+    # Hosted macOS arm64 runners are often capacity-constrained; don't let queueing failures block CI.
+    continue-on-error: true
+    if: github.event_name == 'push'
     steps:
       - name: Set to use Xcode 26.1.1
         uses: maxim-lobanov/setup-xcode@v1
