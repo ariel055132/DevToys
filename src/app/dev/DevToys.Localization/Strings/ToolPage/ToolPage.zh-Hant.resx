@@ -126,4 +126,34 @@
   <data name="RemoveFromFavorites" xml:space="preserve">
     <value>從最愛中移除</value>
   </data>
+  <data name="SearchAliases" xml:space="preserve">
+    <value>搜尋別名</value>
+  </data>
+  <data name="SearchAliasesDescription" xml:space="preserve">
+    <value>加入你習慣用來尋找這個工具的名稱。按下「儲存」後，變更才會生效。</value>
+  </data>
+  <data name="NoSearchAliases" xml:space="preserve">
+    <value>尚未設定搜尋別名。</value>
+  </data>
+  <data name="SearchAliasNumber" xml:space="preserve">
+    <value>別名 {0}</value>
+  </data>
+  <data name="RemoveSearchAlias" xml:space="preserve">
+    <value>刪除別名 {0}</value>
+  </data>
+  <data name="AddSearchAlias" xml:space="preserve">
+    <value>新增別名</value>
+  </data>
+  <data name="CancelSearchAliases" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SaveSearchAliases" xml:space="preserve">
+    <value>儲存</value>
+  </data>
+  <data name="EmptySearchAliasError" xml:space="preserve">
+    <value>別名不能為空白，請輸入名稱或刪除空白列。</value>
+  </data>
+  <data name="DuplicateSearchAliasError" xml:space="preserve">
+    <value>同一工具的別名不能重複；英文大小寫與首尾空白視為相同。</value>
+  </data>
 </root>

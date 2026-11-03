@@ -126,4 +126,34 @@
   <data name="RemoveFromFavorites" xml:space="preserve">
     <value>Remove from favorites</value>
   </data>
+  <data name="SearchAliases" xml:space="preserve">
+    <value>Search aliases</value>
+  </data>
+  <data name="SearchAliasesDescription" xml:space="preserve">
+    <value>Add names you use to find this tool. Changes apply only after you select Save.</value>
+  </data>
+  <data name="NoSearchAliases" xml:space="preserve">
+    <value>No search aliases yet.</value>
+  </data>
+  <data name="SearchAliasNumber" xml:space="preserve">
+    <value>Alias {0}</value>
+  </data>
+  <data name="RemoveSearchAlias" xml:space="preserve">
+    <value>Remove alias {0}</value>
+  </data>
+  <data name="AddSearchAlias" xml:space="preserve">
+    <value>Add alias</value>
+  </data>
+  <data name="CancelSearchAliases" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SaveSearchAliases" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="EmptySearchAliasError" xml:space="preserve">
+    <value>Aliases cannot be blank. Enter a name or remove the empty row.</value>
+  </data>
+  <data name="DuplicateSearchAliasError" xml:space="preserve">
+    <value>This tool has duplicate aliases. Letter case and surrounding spaces are ignored.</value>
+  </data>
 </root>

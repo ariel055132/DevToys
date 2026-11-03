@@ -2,6 +2,7 @@
 using DevToys.Blazor.Core.Services;
 using DevToys.Business.ViewModels;
 using DevToys.Core.Debugger;
+using DevToys.Core.Tools;
 using DevToys.Core.Tools.ViewItems;
 
 namespace DevToys.Blazor.Pages.SubPages;
@@ -10,6 +11,7 @@ public partial class ToolPage : MefComponentBase, IFocusable
 {
     private ScrollViewer? _scrollViewer;
     private FullScreenContainer? _fullScreenContainer;
+    private GuiToolInstance? _searchAliasesTool;
 
     [Inject]
     internal IWindowService WindowService { get; set; } = default!;
@@ -42,6 +44,11 @@ public partial class ToolPage : MefComponentBase, IFocusable
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+
+        if (_searchAliasesTool != GuiToolViewItem?.ToolInstance)
+        {
+            _searchAliasesTool = null;
+        }
 
         if (GuiToolViewItem is not null)
         {
@@ -124,6 +131,16 @@ public partial class ToolPage : MefComponentBase, IFocusable
         Guard.IsNotNull(IndexPage);
         ViewModel.ToggleSelectedMenuItemFavoriteCommand.Execute(null);
         IndexPage.StateHasChanged();
+    }
+
+    private void OnSearchAliasesClick()
+    {
+        _searchAliasesTool = GuiToolViewItem?.ToolInstance;
+    }
+
+    private void CloseSearchAliases()
+    {
+        _searchAliasesTool = null;
     }
 
     private void OnHotReloadRequestUpdateApplication(object? sender, HotReloadEventArgs e)

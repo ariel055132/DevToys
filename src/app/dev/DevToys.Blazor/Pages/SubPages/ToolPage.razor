@@ -1,5 +1,6 @@
 @namespace DevToys.Blazor.Pages.SubPages
 @using DevToys.Blazor.Components.UIElements
+@using DevToys.Blazor.Pages.Dialogs
 @inherits MefComponentBase
 
 <ScrollViewer @ref=_scrollViewer
@@ -7,6 +8,11 @@
               IsScrollable="@(!IsInFullScreenMode && ViewModel.ToolView is not null && ViewModel.ToolView.IsScrollable)">
     @RenderToolWithHeader(true)
 </ScrollViewer>
+
+@if (_searchAliasesTool is not null)
+{
+    <ToolSearchAliasesDialog @key="_searchAliasesTool" Tool="_searchAliasesTool" Closed="CloseSearchAliases" />
+}
 
 @code {
     private RenderFragment<bool> RenderToolWithHeader { get; set; } = default!;
@@ -68,6 +74,11 @@
                     <StackPanel Wrap="false"
                                 IsVisible="@(!WindowService.IsCompactOverlayMode)"
                                 Class="tool-page-top-right-toolbar">
+                        <Button IsVisible="@(GuiToolViewItem is not null && !GuiToolViewItem.ToolInstance.NotSearchable)"
+                                Appearance="ButtonAppearance.Stealth"
+                                @onclick="OnSearchAliasesClick">
+                            <TextBlock Text="@Localization.Strings.ToolPage.ToolPage.SearchAliases" />
+                        </Button>
                         <Button IsVisible="@ViewModel.IsSelectedMenuItemSupportFavorite"
                                 Appearance="ButtonAppearance.Stealth"
                                 @onclick="@OnToggleFavorite">

@@ -36,6 +36,7 @@ public sealed partial class GuiToolProvider : IDisposable
             showLongDisplayTitle: true);
 
     private static readonly char[] WordSeparator = new char[] { ' ', '\t' };
+    private const string SearchAliasesSettingSuffix = "_SearchAliases";
 
     private readonly ILogger _logger;
     private readonly IEnumerable<Lazy<IResourceAssemblyIdentifier, ResourceAssemblyIdentifierMetadata>> _resourceAssemblyIdentifiers;
@@ -128,6 +129,50 @@ public sealed partial class GuiToolProvider : IDisposable
     /// Raised after recent tools or their visibility changed.
     /// </summary>
     public event EventHandler? RecentToolsChanged;
+
+    /// <summary>
+    /// Raised after saved search aliases change.
+    /// </summary>
+    public event EventHandler? SearchAliasesChanged;
+
+    public IReadOnlyList<string> GetToolSearchAliases(GuiToolInstance tool)
+    {
+        Guard.IsNotNull(tool);
+        return Array.AsReadOnly(_settingsProvider.GetSetting(CreateSearchAliasesSettingDefinition(tool)));
+    }
+
+    /// <summary>
+    /// Validates the entire draft before saving any changes. An empty list removes all aliases.
+    /// </summary>
+    public ToolSearchAliasValidationResult TrySetToolSearchAliases(GuiToolInstance tool, IEnumerable<string> aliases)
+    {
+        Guard.IsNotNull(tool);
+        Guard.IsNotNull(aliases);
+
+        var normalized = new List<string>();
+        var unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (string alias in aliases)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                return ToolSearchAliasValidationResult.EmptyAlias;
+            }
+
+            string trimmed = alias.Trim();
+            if (!unique.Add(trimmed))
+            {
+                return ToolSearchAliasValidationResult.DuplicateAlias;
+            }
+
+            normalized.Add(trimmed);
+        }
+
+        _settingsProvider.SetSetting(CreateSearchAliasesSettingDefinition(tool), normalized.ToArray());
+        return ToolSearchAliasValidationResult.Valid;
+    }
+
+    private static SettingDefinition<string[]> CreateSearchAliasesSettingDefinition(GuiToolInstance tool)
+        => new($"{tool.InternalComponentName}{SearchAliasesSettingSuffix}", Array.Empty<string>());
 
     public void Dispose()
     {
@@ -222,6 +267,10 @@ public sealed partial class GuiToolProvider : IDisposable
         if (e.SettingName == PredefinedSettings.ShowMostRecentTools.Name)
         {
             OnRecentToolsChanged();
+        }
+        else if (e.SettingName.EndsWith(SearchAliasesSettingSuffix, StringComparison.Ordinal))
+        {
+            SearchAliasesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -441,15 +490,16 @@ public sealed partial class GuiToolProvider : IDisposable
     /// </summary>
     public void SearchTools(string searchQuery, ObservableCollection<GuiToolViewItem> searchResultListToUpdate)
     {
-        if (string.IsNullOrEmpty(searchQuery))
+        if (string.IsNullOrWhiteSpace(searchQuery))
         {
             searchResultListToUpdate.Clear();
             return;
         }
 
         string[] searchQueries = searchQuery.Split(WordSeparator, StringSplitOptions.RemoveEmptyEntries);
+        string aliasQuery = searchQuery.Trim();
 
-        var weightedToolList = new List<(double weight, GuiToolViewItem tool)>();
+        var weightedToolList = new List<(bool exactAlias, double weight, GuiToolViewItem tool)>();
         for (int i = 0; i < AllTools.Count; i++)
         {
             GuiToolInstance tool = AllTools[i];
@@ -457,11 +507,23 @@ public sealed partial class GuiToolProvider : IDisposable
             if (!tool.NotSearchable) // do not search tools marked as non-searchable
             {
                 SearchTool(searchQueries, tool, out TextSpan[] matchedSpans, out double weight);
+                bool exactAlias = false;
+                foreach (string alias in GetToolSearchAliases(tool))
+                {
+                    if (alias.Contains(aliasQuery, StringComparison.OrdinalIgnoreCase))
+                    {
+                        exactAlias |= string.Equals(alias, aliasQuery, StringComparison.OrdinalIgnoreCase);
+                        WeightMatch(aliasQuery, alias, out double aliasWeight, out _);
+                        // Multiple aliases must not inflate a tool's score or its title highlights.
+                        weight = Math.Max(weight, aliasWeight);
+                    }
+                }
 
                 if (weight > 0)
                 {
                     weightedToolList.Add(
                         new(
+                            exactAlias,
                             weight,
                             new GuiToolViewItem(
                                 tool,
@@ -475,21 +537,22 @@ public sealed partial class GuiToolProvider : IDisposable
 
         if (weightedToolList.Count > 0)
         {
-            // Order by weight.
+            // Exact aliases are always eligible and take priority over ordinary matches.
             var descOrderedWeightedToolList
-                = weightedToolList.OrderByDescending(i => i.weight)
+                = weightedToolList.OrderByDescending(i => i.exactAlias)
+                .ThenByDescending(i => i.weight)
                 .ToList();
 
             // Calculate the dynamic threshold.
             // We will only keep the tools that have a weight of at least 45% of the max weight.
-            double maxWeight = descOrderedWeightedToolList.First().weight;
+            double maxWeight = weightedToolList.Max(i => i.weight);
             double threshold = maxWeight * 0.45;
 
             searchResultListToUpdate
                 .AddRange(
                     descOrderedWeightedToolList
+                        .Where(i => i.exactAlias || i.weight >= threshold)
                         .Take(5) // Take the 5 first items.
-                        .TakeWhile(i => i.weight >= threshold)
                         .Select(i => i.tool));
         }
 

@@ -79,6 +79,7 @@ public partial class Index : MefComponentBase
     {
         base.OnInitialized();
         GuiToolProvider.RecentToolsChanged += GuiToolProvider_RecentToolsChanged;
+        GuiToolProvider.SearchAliasesChanged += GuiToolProvider_SearchAliasesChanged;
         UIDialogService.IsDialogOpenedChanged += DialogService_IsDialogOpenedChanged;
         ViewModel.SelectedMenuItemChanged += ViewModel_SelectedMenuItemChanged;
         ViewModel.SelectedMenuItem ??= ViewModel.HeaderAndBodyToolViewItems[0];
@@ -242,9 +243,19 @@ public partial class Index : MefComponentBase
         InvokeAsync(StateHasChanged);
     }
 
+    private void GuiToolProvider_SearchAliasesChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            ViewModel.SearchBoxTextChangedCommand.Execute(null);
+            StateHasChanged();
+        });
+    }
+
     public override ValueTask DisposeAsync()
     {
         GuiToolProvider.RecentToolsChanged -= GuiToolProvider_RecentToolsChanged;
+        GuiToolProvider.SearchAliasesChanged -= GuiToolProvider_SearchAliasesChanged;
         return base.DisposeAsync();
     }
 
