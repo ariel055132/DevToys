@@ -39,6 +39,15 @@ More tools are available through extensions, and you can [develop your own](http
 
 See [CONTRIBUTING](CONTRIBUTING.md)
 
+## Base64 files in this fork
+
+Open **Encoders / Decoders > Base64 File** to convert files locally:
+
+- Drop or select a file to produce Base64, then copy the text or save it as a `.txt` file.
+- Paste Base64 and choose **Decode and save file**. Images, PDF and common text encodings are detected from the decoded bytes. The save dialog suggests a matching filename, such as `decoded.png`, `decoded.jpg`, or `decoded.pdf`. Unknown formats default to `decoded.bin`, which you can rename with the original extension.
+
+The tool preserves the original bytes for any file type, including text encodings and image metadata. Changing a filename extension does not convert the underlying format. Files are limited to 20 MiB; pasted input accepts standard Base64, Base64url, omitted padding, ASCII whitespace, and Base64 data URLs. Invalid input is rejected before opening the save dialog. Base64 is encoding, not encryption.
+
 ## Privacy Policy
 
 See [PRIVACY POLICY](PRIVACY-POLICY.md)

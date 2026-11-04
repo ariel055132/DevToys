@@ -60,7 +60,13 @@ internal sealed class FileStorage : IFileStorage
         return File.OpenWrite(relativeOrAbsoluteFilePath);
     }
 
-    public async ValueTask<FileStream?> PickSaveFileAsync(params string[] fileTypes)
+    public ValueTask<FileStream?> PickSaveFileAsync(params string[] fileTypes)
+        => PickSaveFileInternalAsync(null, fileTypes);
+
+    public ValueTask<FileStream?> PickSaveFileWithSuggestedNameAsync(string suggestedFileName, params string[] fileTypes)
+        => PickSaveFileInternalAsync(suggestedFileName, fileTypes);
+
+    private static async ValueTask<FileStream?> PickSaveFileInternalAsync(string? suggestedFileName, string[] fileTypes)
     {
         return await ThreadHelper.RunOnUIThreadAsync(() =>
         {
@@ -68,6 +74,12 @@ internal sealed class FileStorage : IFileStorage
             {
                 OverwritePrompt = true
             };
+
+            if (!string.IsNullOrEmpty(suggestedFileName))
+            {
+                saveFileDialog.FileName = Path.GetFileName(suggestedFileName);
+                saveFileDialog.DefaultExt = Path.GetExtension(suggestedFileName);
+            }
 
             if (fileTypes is not null)
             {

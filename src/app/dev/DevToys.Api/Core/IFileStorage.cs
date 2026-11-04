@@ -20,6 +20,18 @@ public interface IFileStorage
     ValueTask<FileStream?> PickSaveFileAsync(params string[] fileTypes);
 
     /// <summary>
+    /// Prompts for a save location with a suggested file name, including its extension.
+    /// </summary>
+    /// <remarks>
+    /// Providers that do not support suggested names fall back to the file-type-only picker.
+    /// </remarks>
+    /// <param name="suggestedFileName">The initial file name to show in the save dialog.</param>
+    /// <param name="fileTypes">The allowed file types, for example ".png", or "*.*" for any file type.</param>
+    /// <returns>The selected write-only stream, or null when cancelled.</returns>
+    ValueTask<FileStream?> PickSaveFileWithSuggestedNameAsync(string suggestedFileName, params string[] fileTypes)
+        => PickSaveFileAsync(fileTypes);
+
+    /// <summary>
     /// Prompt the user to select a file to open.
     /// </summary>
     /// <remarks>The returned items contain a stream. It won't be disposed automatically. It is important to dispose the stream yourself, when not needed anymore</remarks>
