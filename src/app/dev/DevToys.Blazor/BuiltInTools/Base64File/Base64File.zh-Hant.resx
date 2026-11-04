@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="ShortDisplayTitle" xml:space="preserve">
+    <value>Base64 檔案</value>
+  </data>
+  <data name="LongDisplayTitle" xml:space="preserve">
+    <value>Base64 檔案編碼／解碼</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>將任意檔案編碼為 Base64，或將 Base64 解碼還原成檔案。</value>
+  </data>
+  <data name="SearchKeywords" xml:space="preserve">
+    <value>base64,base 64,file,pdf,txt,jpg,jpeg,png,zip,encode,decode,guru,檔案,編碼,解碼,文件,圖片</value>
+  </data>
+  <data name="Instructions" xml:space="preserve">
+    <value>拖放或選取檔案進行編碼，或在下方貼上 Base64 後按「解碼並儲存檔案」。圖片、PDF 及常見文字編碼會自動辨識，並預填對應檔名，例如 decoded.png。未知格式預設為 decoded.bin，也可自行輸入原始副檔名。解碼會保留原始檔案格式。支援最大 20 MiB 的檔案、標準 Base64、Base64url 及 Base64 data URL。所有處理皆在本機進行。</value>
+  </data>
+  <data name="Base64Text" xml:space="preserve">
+    <value>Base64 文字</value>
+  </data>
+  <data name="DecodeAndSave" xml:space="preserve">
+    <value>解碼並儲存檔案</value>
+  </data>
+  <data name="SaveBase64" xml:space="preserve">
+    <value>儲存 Base64 文字</value>
+  </data>
+  <data name="Encoded" xml:space="preserve">
+    <value>已編碼 {0}。可以複製 Base64 文字，或將其儲存為文字檔。</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>已儲存 {0}（{1:N0} 位元組）。</value>
+  </data>
+  <data name="TextSaved" xml:space="preserve">
+    <value>已儲存 Base64 文字。</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>處理中…</value>
+  </data>
+  <data name="InvalidBase64" xml:space="preserve">
+    <value>Base64 格式無效。請檢查是否有遺漏字元、錯誤的等號補位或多餘文字。Data URL 必須包含 ;base64,。</value>
+  </data>
+  <data name="SizeLimit" xml:space="preserve">
+    <value>檔案大小不得超過 20 MiB。Base64 輸入最多可包含 55,924,056 個字元，包含空白及 data URL 前綴。</value>
+  </data>
+  <data name="FileError" xml:space="preserve">
+    <value>無法讀取或儲存檔案。請確認檔案存取權限及可用磁碟空間後重試。</value>
+  </data>
+  <data name="DetectedFormat" xml:space="preserve">
+    <value>已辨識為 {0}。請選擇解碼後檔案的儲存位置。</value>
+  </data>
+  <data name="UnknownFormat" xml:space="preserve">
+    <value>無法辨識檔案類型。可儲存為 decoded.bin，或自行輸入原始副檔名。</value>
+  </data>
+</root>

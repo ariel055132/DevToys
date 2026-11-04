@@ -119,7 +119,13 @@ internal sealed class FileStorage : IFileStorage
         return PickOpenFileInternalAsync(fileTypes, allowMultiple: true);
     }
 
-    public async ValueTask<FileStream?> PickSaveFileAsync(params string[] fileTypes)
+    public ValueTask<FileStream?> PickSaveFileAsync(params string[] fileTypes)
+        => PickSaveFileInternalAsync(null, fileTypes);
+
+    public ValueTask<FileStream?> PickSaveFileWithSuggestedNameAsync(string suggestedFileName, params string[] fileTypes)
+        => PickSaveFileInternalAsync(suggestedFileName, fileTypes);
+
+    private async ValueTask<FileStream?> PickSaveFileInternalAsync(string? suggestedFileName, string[] fileTypes)
     {
         Guard.IsNotNull(MainWindow);
 
@@ -133,6 +139,11 @@ internal sealed class FileStorage : IFileStorage
                 Other.Cancel);
         fileChooser.Modal = true;
         fileChooser.SelectMultiple = false;
+
+        if (!string.IsNullOrEmpty(suggestedFileName))
+        {
+            fileChooser.SetCurrentName(Path.GetFileName(suggestedFileName));
+        }
 
         // Create filters
         IReadOnlyList<FileFilter> filters = GenerateFilter(fileTypes);

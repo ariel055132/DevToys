@@ -1,4 +1,4 @@
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 using DevToys.Api;
 using DevToys.Core;
 using DevToys.MacOS.Core.Helpers;
@@ -58,7 +58,13 @@ internal sealed class FileStorage : IFileStorage
         return File.OpenWrite(relativeOrAbsoluteFilePath);
     }
 
-    public async ValueTask<FileStream?> PickSaveFileAsync(string[] fileTypes)
+    public ValueTask<FileStream?> PickSaveFileAsync(string[] fileTypes)
+        => PickSaveFileInternalAsync(null, fileTypes);
+
+    public ValueTask<FileStream?> PickSaveFileWithSuggestedNameAsync(string suggestedFileName, params string[] fileTypes)
+        => PickSaveFileInternalAsync(suggestedFileName, fileTypes);
+
+    private static async ValueTask<FileStream?> PickSaveFileInternalAsync(string? suggestedFileName, string[] fileTypes)
     {
         return await ThreadHelper.RunOnUIThreadAsync(() =>
         {
@@ -80,6 +86,12 @@ internal sealed class FileStorage : IFileStorage
             if (utTypes is not null)
             {
                 savePanel.AllowedContentTypes = utTypes;
+            }
+
+            if (!string.IsNullOrEmpty(suggestedFileName))
+            {
+                savePanel.ExtensionHidden = false;
+                savePanel.NameFieldStringValue = Path.GetFileName(suggestedFileName);
             }
 
             bool result = savePanel.RunModal() == 1; // 1 indicates OK button was pressed

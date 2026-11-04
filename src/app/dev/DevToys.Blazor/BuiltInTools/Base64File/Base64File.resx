@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="ShortDisplayTitle" xml:space="preserve">
+    <value>Base64 File</value>
+  </data>
+  <data name="LongDisplayTitle" xml:space="preserve">
+    <value>Base64 File Encoder / Decoder</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Encode any file to Base64 or decode Base64 back to a file.</value>
+  </data>
+  <data name="SearchKeywords" xml:space="preserve">
+    <value>base64,base 64,file,pdf,txt,jpg,jpeg,png,zip,encode,decode,guru</value>
+  </data>
+  <data name="Instructions" xml:space="preserve">
+    <value>Drop or select a file to encode, or paste Base64 below and choose Decode and save file. Images, PDF and common text encodings are detected automatically, with a matching filename such as decoded.png. Unknown formats default to decoded.bin; you can enter the original extension. Decoding preserves the original file format. Supports files up to 20 MiB, standard Base64, Base64url and Base64 data URLs. All processing stays on this device.</value>
+  </data>
+  <data name="Base64Text" xml:space="preserve">
+    <value>Base64 text</value>
+  </data>
+  <data name="DecodeAndSave" xml:space="preserve">
+    <value>Decode and save file</value>
+  </data>
+  <data name="SaveBase64" xml:space="preserve">
+    <value>Save Base64 text</value>
+  </data>
+  <data name="Encoded" xml:space="preserve">
+    <value>Encoded {0}. Copy the Base64 text or save it as a text file.</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Saved {0} ({1:N0} bytes).</value>
+  </data>
+  <data name="TextSaved" xml:space="preserve">
+    <value>Saved the Base64 text.</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>Processing…</value>
+  </data>
+  <data name="InvalidBase64" xml:space="preserve">
+    <value>Invalid Base64. Check for missing characters, incorrect padding or extra text. Data URLs must contain ;base64,.</value>
+  </data>
+  <data name="SizeLimit" xml:space="preserve">
+    <value>The file must be 20 MiB or smaller. Base64 input may contain at most 55,924,056 characters, including whitespace and the data URL prefix.</value>
+  </data>
+  <data name="FileError" xml:space="preserve">
+    <value>Could not read or save the file. Check file access and available disk space, then try again.</value>
+  </data>
+  <data name="DetectedFormat" xml:space="preserve">
+    <value>Detected {0}. Choose where to save the decoded file.</value>
+  </data>
+  <data name="UnknownFormat" xml:space="preserve">
+    <value>Unknown file type. Save as decoded.bin, or enter the original extension.</value>
+  </data>
+</root>
