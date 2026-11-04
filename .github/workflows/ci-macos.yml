@@ -1,0 +1,27 @@
+name: ci-macos
+
+# Hosted macOS arm64 runners are often capacity-constrained and the job can be cancelled
+# before a runner picks it up, so macOS runs separately and on demand to keep `ci` reliable.
+on:
+  workflow_dispatch:
+
+jobs:
+  macos-latest:
+    name: macOS
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Set to use Xcode 26.1.1
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.1.1'
+      - uses: actions/checkout@v3
+      - name: 'Cache: .nuke/temp, ~/.nuget/packages'
+        uses: actions/cache@v3
+        with:
+          path: |
+            .nuke/temp
+            ~/.nuget/packages
+          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
+      - name: 'Restore, Build and Test'
+        run: ./build.cmd RunTests
