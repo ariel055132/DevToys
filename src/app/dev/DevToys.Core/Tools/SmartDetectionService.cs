@@ -1,14 +1,18 @@
-﻿using DevToys.Core.Tools.Metadata;
+﻿using DevToys.Core.Settings;
+using DevToys.Core.Tools.Metadata;
 using Microsoft.Extensions.Logging;
 
 namespace DevToys.Core.Tools;
 
 [Export(typeof(SmartDetectionService))]
-public sealed partial class SmartDetectionService
+public sealed partial class SmartDetectionService : IDisposable
 {
+    private const string ToolSettingSuffix = "_SmartDetectionEnabled";
     private readonly ILogger _logger;
+    private readonly ISettingsProvider _settingsProvider;
     private readonly IReadOnlyList<DetectorNode> _detectorHierarchy;
     private readonly Dictionary<string, List<GuiToolInstance>> _dataTypeToToolInstanceMap;
+    private int _settingsVersion;
 
     [ImportingConstructor]
     public SmartDetectionService(
@@ -17,6 +21,8 @@ public sealed partial class SmartDetectionService
         GuiToolProvider guiToolProvider)
     {
         _logger = this.Log();
+        _settingsProvider = settingsProvider;
+        _settingsProvider.SettingChanged += OnSettingChanged;
 
         // Build a hierarchy of detectors based on their indicated base data type name.
         _detectorHierarchy = BuildDetectorNodeHierarchy(dataTypeDetectors);
@@ -29,6 +35,47 @@ public sealed partial class SmartDetectionService
     /// Presumably the active tool in the app.
     /// </summary>
     public GuiToolInstance? ActiveToolInstance { private get; set; }
+
+    /// <summary>
+    /// Raised when recommendations and pending data must be invalidated.
+    /// </summary>
+    public event EventHandler? SettingsChanged;
+
+    public int SettingsVersion => Volatile.Read(ref _settingsVersion);
+
+    public bool GetToolEnabled(GuiToolInstance tool)
+    {
+        Guard.IsNotNull(tool);
+        return _settingsProvider.GetSetting(CreateToolSetting(tool));
+    }
+
+    public void SetToolEnabled(GuiToolInstance tool, bool enabled)
+    {
+        Guard.IsNotNull(tool);
+        if (GetToolEnabled(tool) != enabled)
+        {
+            _settingsProvider.SetSetting(CreateToolSetting(tool), enabled);
+        }
+    }
+
+    public void Dispose()
+    {
+        _settingsProvider.SettingChanged -= OnSettingChanged;
+    }
+
+    private static SettingDefinition<bool> CreateToolSetting(GuiToolInstance tool)
+        => new($"{tool.InternalComponentName}{ToolSettingSuffix}", defaultValue: true);
+
+    private void OnSettingChanged(object? sender, SettingChangedEventArgs e)
+    {
+        if (e.SettingName.EndsWith(ToolSettingSuffix, StringComparison.Ordinal)
+            || e.SettingName == PredefinedSettings.SmartDetection.Name
+            || e.SettingName == PredefinedSettings.SmartDetectionPaste.Name)
+        {
+            Interlocked.Increment(ref _settingsVersion);
+            SettingsChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
 
     /// <summary>
     /// Detects the best tools that could be used with the given <paramref name="rawData"/>.
@@ -68,6 +115,10 @@ public sealed partial class SmartDetectionService
             {
                 for (int j = 0; j < toolList.Count; j++)
                 {
+                    if (!GetToolEnabled(toolList[j]))
+                    {
+                        continue;
+                    }
                     if (!strict && activeToolInstance is not null && string.Equals(toolList[j].InternalComponentName, activeToolInstance.InternalComponentName, StringComparison.Ordinal))
                     {
                         // When not strict, ignore the tool if it's the active one.
@@ -85,6 +136,10 @@ public sealed partial class SmartDetectionService
                 {
                     for (int j = 0; j < toolList.Count; j++)
                     {
+                        if (!GetToolEnabled(toolList[j]))
+                        {
+                            continue;
+                        }
                         if (!strict && activeToolInstance is not null && string.Equals(toolList[j].InternalComponentName, activeToolInstance.InternalComponentName, StringComparison.Ordinal))
                         {
                             // When not strict, ignore the tool if it's the active one.

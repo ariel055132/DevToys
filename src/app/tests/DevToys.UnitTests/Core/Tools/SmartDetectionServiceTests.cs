@@ -7,6 +7,20 @@ namespace DevToys.UnitTests.Core.Tools;
 public class SmartDetectionServiceTests : MefBasedTest
 {
     [Theory]
+    [InlineData("MockTool", "MockTool2")]
+    [InlineData("MockTool2", "MockTool")]
+    public async Task NonStrictDetectionFiltersBothExactAndBaseTypeTools(string disabled, string remaining)
+    {
+        SmartDetectionService service = MefProvider.Import<SmartDetectionService>();
+        GuiToolProvider provider = MefProvider.Import<GuiToolProvider>();
+        service.SetToolEnabled(provider.GetToolFromInternalName(disabled)!, false);
+        IReadOnlyList<SmartDetectedTool> detected = await service.DetectAsync("{ \"json\": 123 }", false, CancellationToken.None);
+        detected.Should().ContainSingle().Which.ToolInstance.InternalComponentName.Should().Be(remaining);
+        service.ActiveToolInstance = provider.GetToolFromInternalName(remaining);
+        (await service.DetectAsync("{ \"json\": 123 }", false, CancellationToken.None)).Should().BeEmpty();
+    }
+
+    [Theory]
     [InlineData("hello world", true, "MockTool2")]
     [InlineData("hello world", false, "MockTool2")]
     [InlineData("{ \"json\": 123 }", true, "MockTool")]

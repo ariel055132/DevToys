@@ -48,6 +48,12 @@ Open **Encoders / Decoders > Base64 File** to convert files locally:
 
 The tool preserves the original bytes for any file type, including text encodings and image metadata. Changing a filename extension does not convert the underlying format. Files are limited to 20 MiB; pasted input accepts standard Base64, Base64url, omitted padding, ASCII whitespace, and Base64 data URLs. Invalid input is rejected before opening the save dialog. Base64 is encoding, not encryption.
 
+## Per-tool smart recommendations in this fork
+
+Tools that accept detected data have a **Smart recommendations** switch below their title. It is enabled by default and saved separately for each tool. Turning it off excludes that tool from clipboard recommendations and suggestions for tool output; the tool remains available to open manually.
+
+Changing the switch clears previous recommendation badges and pending automatic input. The next clipboard check reevaluates the same data with the updated settings, while output suggestions refresh immediately. When only one enabled tool matches, the existing automatic paste setting controls whether DevToys opens it and passes the data.
+
 ## Privacy Policy
 
 See [PRIVACY POLICY](PRIVACY-POLICY.md)

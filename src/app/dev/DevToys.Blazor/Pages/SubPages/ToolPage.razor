@@ -64,10 +64,15 @@
                     })">
 
                 <GridCell Row="0" Column="0">
-                    <TextBlock IsVisible="@(!WindowService.IsCompactOverlayMode)"
-                               Appearance="@TextBlockAppearance.Title"
-                               Style="font-size: 24px !important"
-                               Text="@ViewModel.HeaderText" />
+                    <StackPanel Orientation="UIOrientation.Vertical" IsVisible="@(!WindowService.IsCompactOverlayMode)">
+                        <TextBlock Appearance="@TextBlockAppearance.Title"
+                                   Style="font-size: 24px !important"
+                                   Text="@ViewModel.HeaderText" />
+                        @if (GuiToolViewItem is not null)
+                        {
+                            <ToolSmartDetectionToggle Tool="@GuiToolViewItem.ToolInstance" />
+                        }
+                    </StackPanel>
                 </GridCell>
                 <GridCell Row="0"
                           Column="1">

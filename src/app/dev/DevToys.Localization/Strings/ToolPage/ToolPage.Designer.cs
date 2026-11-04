@@ -96,6 +96,24 @@ namespace DevToys.Localization.Strings.ToolPage {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Smart recommendations.
+        /// </summary>
+        public static string SmartDetection {
+            get {
+                return ResourceManager.GetString("SmartDetection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up the description of the per-tool smart recommendations setting.
+        /// </summary>
+        public static string SmartDetectionDescription {
+            get {
+                return ResourceManager.GetString("SmartDetectionDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Add names you use to find this tool. Changes apply only after you select Save..
         /// </summary>
         public static string SearchAliasesDescription {

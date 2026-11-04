@@ -88,6 +88,7 @@ public partial class UITextInputWrapper : MefComponentBase
         base.OnInitialized();
         UITextInput.TextChanged += UITextInput_TextChanged;
         UITextInput.IsVisibleChanged += UITextInput_IsVisibleChanged;
+        _smartDetectionService.SettingsChanged += OnSmartDetectionSettingsChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -112,6 +113,9 @@ public partial class UITextInputWrapper : MefComponentBase
     {
         UITextInput.TextChanged -= UITextInput_TextChanged;
         UITextInput.IsVisibleChanged -= UITextInput_IsVisibleChanged;
+        _smartDetectionService.SettingsChanged -= OnSmartDetectionSettingsChanged;
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
         await (await JSModule).InvokeVoidWithErrorHandlingAsync("dispose", ExtendedId);
         _semaphore.Dispose();
         await base.DisposeAsync();
@@ -355,11 +359,22 @@ public partial class UITextInputWrapper : MefComponentBase
             cancellationSourceToken?.Cancel();
             cancellationSourceToken?.Dispose();
             Interlocked.Exchange(ref _cancellationTokenSource, new(TimeSpan.FromSeconds(2)));
-            SmartDetectToolsAsync(UITextInput.Text, _cancellationTokenSource.Token).ForgetSafely();
+            SmartDetectToolsAsync(UITextInput.Text, _smartDetectionService.SettingsVersion, _cancellationTokenSource.Token).ForgetSafely();
         }
     }
 
-    private async Task SmartDetectToolsAsync(string text, CancellationToken cancellationToken)
+    private void OnSmartDetectionSettingsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            SmartDetectionDropDownItems.Clear();
+            ToolsDetectedBySmartDetection = false;
+            TriggerSmartDetection();
+            StateHasChanged();
+        }).ForgetSafely();
+    }
+
+    private async Task SmartDetectToolsAsync(string text, int settingsVersion, CancellationToken cancellationToken)
     {
         await TaskSchedulerAwaiter.SwitchOffMainThreadAsync(cancellationToken);
 
@@ -373,7 +388,7 @@ public partial class UITextInputWrapper : MefComponentBase
 
             await InvokeAsync(() =>
             {
-                if (!cancellationToken.IsCancellationRequested)
+                if (!cancellationToken.IsCancellationRequested && settingsVersion == _smartDetectionService.SettingsVersion)
                 {
                     SmartDetectionDropDownItems.Clear();
 
@@ -391,6 +406,7 @@ public partial class UITextInputWrapper : MefComponentBase
                                 IconFontFamily = detectedTool.ToolInstance.IconFontName,
                                 Text = detectedTool.ToolInstance.LongOrShortDisplayTitle,
                                 SmartDetectedTool = detectedTool,
+                                SettingsVersion = settingsVersion,
                                 OnClick = onClickEventCallback
                             };
 
@@ -418,7 +434,9 @@ public partial class UITextInputWrapper : MefComponentBase
 
     private void SmartDetectionMenuItem_Click(DropDownListItem menuItem)
     {
-        if (menuItem is SmartDetectionDropDownListItem smartDetectionDropDownListItem)
+        if (menuItem is SmartDetectionDropDownListItem smartDetectionDropDownListItem
+            && smartDetectionDropDownListItem.SettingsVersion == _smartDetectionService.SettingsVersion
+            && _smartDetectionService.GetToolEnabled(smartDetectionDropDownListItem.SmartDetectedTool.ToolInstance))
         {
             WeakReferenceMessenger.Default.Send(new ChangeSelectedMenuItemMessage(smartDetectionDropDownListItem.SmartDetectedTool));
         }
@@ -479,5 +497,7 @@ public partial class UITextInputWrapper : MefComponentBase
     public class SmartDetectionDropDownListItem : DropDownListItem
     {
         internal SmartDetectedTool SmartDetectedTool { get; set; } = default!;
+
+        internal int SettingsVersion { get; set; }
     }
 }

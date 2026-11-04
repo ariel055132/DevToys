@@ -17,7 +17,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace DevToys.Business.ViewModels;
 
 [Export]
-internal sealed partial class MainWindowViewModel : ObservableRecipient
+internal sealed partial class MainWindowViewModel : ObservableRecipient, IDisposable
 {
     private readonly ILogger _logger;
     private readonly GuiToolProvider _guiToolProvider;
@@ -33,6 +33,7 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
     private bool _passSmartDetectedDataToNextSelectedToolIsAllowed;
     private INotifyPropertyChanged? _selectedMenuItem;
     private bool _isGoingBack;
+    private int _smartDetectionRequest;
 
     [ImportingConstructor]
     public MainWindowViewModel(
@@ -50,6 +51,7 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
         _settingsProvider = settingsProvider;
         _webClientService = webClientService;
         _versionService = versionService;
+        _smartDetectionService.SettingsChanged += OnSmartDetectionSettingsChanged;
         Messenger.Register<MainWindowViewModel, ChangeSelectedMenuItemMessage>(this, OnChangeSelectedMenuItemMessageReceived);
     }
 
@@ -129,7 +131,10 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
                     {
                         SmartDetectedTool? smartDetectedTool
                             = _oldSmartDetectedTools.FirstOrDefault(tool => tool.ToolInstance == guiToolViewItem.ToolInstance);
-                        if (smartDetectedTool is not null)
+                        if (smartDetectedTool is not null
+                            && _settingsProvider.GetSetting(PredefinedSettings.SmartDetection)
+                            && _settingsProvider.GetSetting(PredefinedSettings.SmartDetectionPaste)
+                            && _smartDetectionService.GetToolEnabled(guiToolViewItem.ToolInstance))
                         {
                             // Send the data to the tool.
                             guiToolViewItem.ToolInstance.PassSmartDetectedData(smartDetectedTool.DataTypeName, smartDetectedTool.ParsedData);
@@ -206,6 +211,8 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
     /// </summary>
     internal async Task RunSmartDetectionAsync(bool isInCompactOverlayMode, bool isDialogOpened)
     {
+        int request = ++_smartDetectionRequest;
+        int settingsVersion = _smartDetectionService.SettingsVersion;
         if (isInCompactOverlayMode
             || isDialogOpened
             || !_settingsProvider.GetSetting(PredefinedSettings.SmartDetection))
@@ -229,15 +236,25 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
             object? rawClipboardData = await _clipboard.GetClipboardDataAsync();
 
             // If the clipboard content has changed since the last time
-            if (!cancellationToken.IsCancellationRequested && !AreOldAndNewClipboardDataEqual(_oldRawClipboardData, rawClipboardData))
+            if (!cancellationToken.IsCancellationRequested
+                && request == _smartDetectionRequest
+                && settingsVersion == _smartDetectionService.SettingsVersion
+                && !AreOldAndNewClipboardDataEqual(_oldRawClipboardData, rawClipboardData))
             {
-                // Reset recommended tools.
-                _guiToolProvider.ForEachToolViewItem(toolViewItem => toolViewItem.IsRecommended = false);
+                ClearSmartDetectionState();
 
                 // Detect tools to recommend.
                 IReadOnlyList<SmartDetectedTool> detectedTools
                     = await _smartDetectionService.DetectAsync(rawClipboardData, strict: true, cancellationToken)
                         .ConfigureAwait(true);
+
+                // A setting change or a newer request invalidates this result, even if a detector ignored cancellation.
+                if (cancellationToken.IsCancellationRequested
+                    || request != _smartDetectionRequest
+                    || settingsVersion != _smartDetectionService.SettingsVersion)
+                {
+                    return;
+                }
 
                 GuiToolViewItem? firstToolViewItem = null;
 
@@ -253,7 +270,10 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
                         {
                             firstToolViewItem = toolViewItem;
                         }
-                        toolViewItem.IsRecommended = true;
+                        foreach (GuiToolViewItem item in toolViewItems)
+                        {
+                            item.IsRecommended = true;
+                        }
                     }
                 }
 
@@ -262,7 +282,8 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
                 {
                     // If one unique tool got found
                     // And that the current selected menu item is a group, or that the user didn't selected another menu item since the smart detection started
-                    if (detectedTools.Count == 1 && (SelectedMenuItem == selectedMenuBeforeSmartDetection || SelectedMenuItem is GroupViewItem && firstToolViewItem is not null))
+                    if (detectedTools.Count == 1 && firstToolViewItem is not null
+                        && (SelectedMenuItem == selectedMenuBeforeSmartDetection || SelectedMenuItem is GroupViewItem))
                     {
                         // Then let's navigate immediately to it and set the detected data as an input.
                         SelectedMenuItem = firstToolViewItem;
@@ -290,6 +311,26 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
         {
             LogSmartDetectionFailed(ex);
         }
+    }
+
+    public void Dispose()
+    {
+        _smartDetectionService.SettingsChanged -= OnSmartDetectionSettingsChanged;
+        Messenger.UnregisterAll(this);
+    }
+
+    private void OnSmartDetectionSettingsChanged(object? sender, EventArgs e)
+    {
+        ++_smartDetectionRequest;
+        ClearSmartDetectionState();
+    }
+
+    private void ClearSmartDetectionState()
+    {
+        _oldRawClipboardData = null;
+        _oldSmartDetectedTools = null;
+        _passSmartDetectedDataToNextSelectedToolIsAllowed = false;
+        _guiToolProvider.ForEachToolViewItem(toolViewItem => toolViewItem.IsRecommended = false);
     }
 
     internal INotifyPropertyChanged GetBestMenuItemToSelect(object currentSelectedMenuItem)
@@ -363,7 +404,7 @@ internal sealed partial class MainWindowViewModel : ObservableRecipient
         SelectedMenuItem = GetBestMenuItemToSelect(message.Value);
 
         // If this is not null, it means that the user has selected a tool that has been detected by Smart Detection.
-        if (message.SmartDetectionInfo is not null)
+        if (message.SmartDetectionInfo is not null && _smartDetectionService.GetToolEnabled(message.Value))
         {
             // Send the data to the tool.
             message.Value.PassSmartDetectedData(message.SmartDetectionInfo.DataTypeName, message.SmartDetectionInfo.ParsedData);

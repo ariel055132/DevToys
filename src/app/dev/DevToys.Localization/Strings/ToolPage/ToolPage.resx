@@ -156,4 +156,10 @@
   <data name="DuplicateSearchAliasError" xml:space="preserve">
     <value>This tool has duplicate aliases. Letter case and surrounding spaces are ignored.</value>
   </data>
+  <data name="SmartDetection" xml:space="preserve">
+    <value>Smart recommendations</value>
+  </data>
+  <data name="SmartDetectionDescription" xml:space="preserve">
+    <value>Recommend this tool for compatible clipboard data and tool output. You can still open it manually when disabled.</value>
+  </data>
 </root>

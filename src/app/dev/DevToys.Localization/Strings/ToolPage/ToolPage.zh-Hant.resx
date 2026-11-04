@@ -156,4 +156,10 @@
   <data name="DuplicateSearchAliasError" xml:space="preserve">
     <value>同一工具的別名不能重複；英文大小寫與首尾空白視為相同。</value>
   </data>
+  <data name="SmartDetection" xml:space="preserve">
+    <value>智慧推薦</value>
+  </data>
+  <data name="SmartDetectionDescription" xml:space="preserve">
+    <value>當剪貼簿資料或工具輸出適用時，推薦此工具。關閉後仍可手動開啟工具。</value>
+  </data>
 </root>

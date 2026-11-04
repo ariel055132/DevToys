@@ -1,0 +1,42 @@
+@namespace DevToys.Blazor.Components
+@using DevToys.Core.Tools
+@using ToolPageStrings = DevToys.Localization.Strings.ToolPage.ToolPage
+@inherits MefComponentBase
+
+@if (Tool.AcceptedDataTypeNames.Any(name => !string.IsNullOrWhiteSpace(name)))
+{
+    <ToggleSwitch Text="@ToolPageStrings.SmartDetection"
+                  title="@ToolPageStrings.SmartDetectionDescription"
+                  IsOn="@SmartDetectionService.GetToolEnabled(Tool)"
+                  OnCheckedChanged="OnCheckedChanged" />
+}
+
+@code {
+    [Import]
+    internal SmartDetectionService SmartDetectionService { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public GuiToolInstance Tool { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SmartDetectionService.SettingsChanged += OnSettingsChanged;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        SmartDetectionService.SettingsChanged -= OnSettingsChanged;
+        await base.DisposeAsync();
+    }
+
+    private void OnCheckedChanged(bool enabled)
+    {
+        SmartDetectionService.SetToolEnabled(Tool, enabled);
+    }
+
+    private void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged).ForgetSafely();
+    }
+}
