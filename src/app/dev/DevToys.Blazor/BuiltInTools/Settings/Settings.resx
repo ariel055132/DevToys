@@ -287,4 +287,40 @@
   <data name="WordWrapStateDescriptionWhenOn" xml:space="preserve">
     <value>Word wrap</value>
   </data>
+  <data name="PreferencesTransfer" xml:space="preserve">
+    <value>Preferences backup</value>
+  </data>
+  <data name="PreferencesTransferDescription" xml:space="preserve">
+    <value>Transfer general settings, favorites, search aliases, and per-tool Smart Detection switches in a JSON file. Tool input, recent history, and window position are excluded.</value>
+  </data>
+  <data name="ExportPreferences" xml:space="preserve">
+    <value>Export preferences</value>
+  </data>
+  <data name="ImportPreferences" xml:space="preserve">
+    <value>Import preferences</value>
+  </data>
+  <data name="PreferencesExported" xml:space="preserve">
+    <value>Preferences exported.</value>
+  </data>
+  <data name="PreferencesImported" xml:space="preserve">
+    <value>Preferences imported.</value>
+  </data>
+  <data name="PreferencesRestart" xml:space="preserve">
+    <value>Restart DevToys to apply all imported preferences.</value>
+  </data>
+  <data name="PreferencesCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="PreferencesImportConfirmation" xml:space="preserve">
+    <value>Import {1} preferences from “{0}”? Values included in the file will overwrite your current preferences. Other preferences will be kept. Restart DevToys afterward to apply all changes.</value>
+  </data>
+  <data name="PreferencesMissingTools" xml:space="preserve">
+    <value>Nothing was imported. Install these missing tools before importing this file:</value>
+  </data>
+  <data name="PreferencesInvalidFile" xml:space="preserve">
+    <value>Nothing was imported. Choose a valid DevToys preferences JSON file (version 1, up to 1 MiB) with supported settings and values.</value>
+  </data>
+  <data name="PreferencesTransferFailed" xml:space="preserve">
+    <value>Preferences could not be transferred. Check file access and available storage, then try again. If importing, restart DevToys and check your preferences before retrying.</value>
+  </data>
 </root>

@@ -20,7 +20,7 @@ namespace DevToys.Blazor.BuiltInTools.Settings;
 [NotFavorable]
 [NotSearchable]
 [NoCompactOverlaySupport]
-internal sealed class SettingsGuiTool : IGuiTool
+internal sealed partial class SettingsGuiTool : IGuiTool
 {
     internal const string SettingsInternalToolName = "Settings";
 
@@ -41,12 +41,14 @@ internal sealed class SettingsGuiTool : IGuiTool
         ISettingsProvider settingsProvider,
         IFontProvider fontProvider,
         IClipboard clipboard,
-        IFileStorage fileStorage)
+        IFileStorage fileStorage,
+        PreferencesTransferService preferencesTransfer)
     {
         _settingsProvider = settingsProvider;
         _fontProvider = fontProvider;
         _clipboard = clipboard;
         _fileStorage = fileStorage;
+        _preferencesTransfer = preferencesTransfer;
 
         // Load available languages and current language.
         (IUIDropDownListItem[] availableLanguagesItems, IUIDropDownListItem currentLanguageItem) = LoadLanguages();
@@ -63,6 +65,9 @@ internal sealed class SettingsGuiTool : IGuiTool
     }
 
     public UIToolView View
+        => _view ??= CreateView();
+
+    private UIToolView CreateView()
         => new(
             Stack()
                 .Vertical()
@@ -226,6 +231,21 @@ internal sealed class SettingsGuiTool : IGuiTool
                                     .AlignVertically(UIVerticalAlignment.Top)
                                     .Language("json")
                                     .Text(_previewJsonText))),
+
+                // Preferences backup
+                Stack()
+                    .Vertical()
+                    .WithChildren(
+                        Label().Text(Settings.PreferencesTransfer),
+                        Setting("preferences-transfer-setting")
+                            .Icon("FluentSystemIcons", '\uE4F0')
+                            .Title(Settings.PreferencesTransfer)
+                            .Description(Settings.PreferencesTransferDescription)
+                            .InteractiveElement(
+                                Wrap().WithChildren(
+                                    _exportPreferences.Text(Settings.ExportPreferences).OnClick(ExportPreferencesAsync),
+                                    _importPreferences.Text(Settings.ImportPreferences).OnClick(ImportPreferencesAsync))),
+                        _preferencesStatus),
 
                 // About
                 Stack()

@@ -563,5 +563,29 @@ namespace DevToys.Blazor.BuiltInTools.Settings {
                 return ResourceManager.GetString("WordWrapStateDescriptionWhenOn", resourceCulture);
             }
         }
+        internal static string PreferencesTransfer => ResourceManager.GetString("PreferencesTransfer", resourceCulture);
+
+        internal static string PreferencesTransferDescription => ResourceManager.GetString("PreferencesTransferDescription", resourceCulture);
+
+        internal static string ExportPreferences => ResourceManager.GetString("ExportPreferences", resourceCulture);
+
+        internal static string ImportPreferences => ResourceManager.GetString("ImportPreferences", resourceCulture);
+
+        internal static string PreferencesExported => ResourceManager.GetString("PreferencesExported", resourceCulture);
+
+        internal static string PreferencesImported => ResourceManager.GetString("PreferencesImported", resourceCulture);
+
+        internal static string PreferencesRestart => ResourceManager.GetString("PreferencesRestart", resourceCulture);
+
+        internal static string PreferencesCancel => ResourceManager.GetString("PreferencesCancel", resourceCulture);
+
+        internal static string PreferencesImportConfirmation => ResourceManager.GetString("PreferencesImportConfirmation", resourceCulture);
+
+        internal static string PreferencesMissingTools => ResourceManager.GetString("PreferencesMissingTools", resourceCulture);
+
+        internal static string PreferencesInvalidFile => ResourceManager.GetString("PreferencesInvalidFile", resourceCulture);
+
+        internal static string PreferencesTransferFailed => ResourceManager.GetString("PreferencesTransferFailed", resourceCulture);
+
     }
 }

@@ -287,4 +287,40 @@
   <data name="WordWrapStateDescriptionWhenOn" xml:space="preserve">
     <value>文字換行</value>
   </data>
+  <data name="PreferencesTransfer" xml:space="preserve">
+    <value>偏好設定備份</value>
+  </data>
+  <data name="PreferencesTransferDescription" xml:space="preserve">
+    <value>透過 JSON 檔案移轉一般設定、我的最愛、搜尋別名與個別工具的智慧偵測開關。不包含工具輸入內容、最近使用紀錄與視窗位置。</value>
+  </data>
+  <data name="ExportPreferences" xml:space="preserve">
+    <value>匯出偏好設定</value>
+  </data>
+  <data name="ImportPreferences" xml:space="preserve">
+    <value>匯入偏好設定</value>
+  </data>
+  <data name="PreferencesExported" xml:space="preserve">
+    <value>偏好設定已匯出。</value>
+  </data>
+  <data name="PreferencesImported" xml:space="preserve">
+    <value>偏好設定已匯入。</value>
+  </data>
+  <data name="PreferencesRestart" xml:space="preserve">
+    <value>請重新啟動 DevToys，讓所有匯入的偏好設定生效。</value>
+  </data>
+  <data name="PreferencesCancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="PreferencesImportConfirmation" xml:space="preserve">
+    <value>要從「{0}」匯入 {1} 項偏好設定嗎？檔案中包含的設定會覆寫目前的值，其餘設定將保留。匯入後請重新啟動 DevToys，讓所有變更生效。</value>
+  </data>
+  <data name="PreferencesMissingTools" xml:space="preserve">
+    <value>未匯入任何設定。請先安裝下列缺少的工具，再匯入此檔案：</value>
+  </data>
+  <data name="PreferencesInvalidFile" xml:space="preserve">
+    <value>未匯入任何設定。請選擇有效的 DevToys 偏好設定 JSON 檔（版本 1，上限 1 MiB），且設定項目與數值皆須受支援。</value>
+  </data>
+  <data name="PreferencesTransferFailed" xml:space="preserve">
+    <value>無法移轉偏好設定。請檢查檔案存取權限與可用儲存空間後重試。若正在匯入，請先重新啟動 DevToys 並檢查偏好設定，再重試。</value>
+  </data>
 </root>
