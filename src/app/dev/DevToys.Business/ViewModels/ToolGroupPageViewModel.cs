@@ -28,11 +28,15 @@ internal sealed partial class ToolGroupPageViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isAllToolsGroup;
 
+    [ObservableProperty]
+    private bool _isFavoriteToolsGroup;
+
     internal void Load(GroupViewItem groupViewItem)
     {
         Guard.IsNotNull(groupViewItem);
 
         IsAllToolsGroup = false;
+        IsFavoriteToolsGroup = false;
 
         if (string.Equals(groupViewItem.InternalName, ReservedGuiToolGroupNames.AllTools, StringComparison.OrdinalIgnoreCase))
         {
@@ -42,6 +46,7 @@ internal sealed partial class ToolGroupPageViewModel : ObservableRecipient
         else if (string.Equals(groupViewItem.InternalName, ReservedGuiToolGroupNames.FavoriteTools, StringComparison.OrdinalIgnoreCase))
         {
             Tools = LoadFavoriteTools();
+            IsFavoriteToolsGroup = true;
         }
         else
         {
@@ -73,21 +78,8 @@ internal sealed partial class ToolGroupPageViewModel : ObservableRecipient
         }
 
         // Favorite tools group & every other tools group.
-        var favoriteToolsGroup = new List<GuiToolInstance>();
-        var everyOtherToolsGroup = new List<GuiToolInstance>();
-        for (int i = 0; i < _guiToolProvider.AllTools.Count; i++)
-        {
-            GuiToolInstance tool = _guiToolProvider.AllTools[i];
-            bool isFavorite = _guiToolProvider.GetToolIsFavorite(tool);
-            if (isFavorite)
-            {
-                favoriteToolsGroup.Add(tool);
-            }
-            else
-            {
-                everyOtherToolsGroup.Add(tool);
-            }
-        }
+        IReadOnlyList<GuiToolInstance> favoriteToolsGroup = _guiToolProvider.GetFavoriteTools();
+        var everyOtherToolsGroup = _guiToolProvider.AllTools.Except(favoriteToolsGroup).ToList();
 
         if (favoriteToolsGroup.Count > 0)
         {
@@ -123,19 +115,8 @@ internal sealed partial class ToolGroupPageViewModel : ObservableRecipient
 
     private ObservableGroupedCollection<string, GuiToolInstance> LoadFavoriteTools()
     {
-        var favoriteTools = new List<GuiToolInstance>();
-        for (int i = 0; i < _guiToolProvider.AllTools.Count; i++)
-        {
-            GuiToolInstance tool = _guiToolProvider.AllTools[i];
-            bool isFavorite = _guiToolProvider.GetToolIsFavorite(tool);
-            if (isFavorite)
-            {
-                favoriteTools.Add(tool);
-            }
-        }
-
         return new ObservableGroupedCollection<string, GuiToolInstance>(
-            favoriteTools.GroupBy(static tool => string.Empty /* Group display name */));
+            _guiToolProvider.GetFavoriteTools().GroupBy(static tool => string.Empty /* Group display name */));
     }
 
     private ObservableGroupedCollection<string, GuiToolInstance> LoadToolsGroup(string groupName)

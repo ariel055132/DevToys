@@ -138,4 +138,13 @@
   <data name="ClearRecentTools" xml:space="preserve">
     <value>Clear recent tools</value>
   </data>
+  <data name="MoveFavoriteEarlier" xml:space="preserve">
+    <value>Move earlier in favorites</value>
+  </data>
+  <data name="MoveFavoriteLater" xml:space="preserve">
+    <value>Move later in favorites</value>
+  </data>
+  <data name="NoFavoriteTools" xml:space="preserve">
+    <value>No favorites yet. Add tools using the star on a tool card.</value>
+  </data>
 </root>

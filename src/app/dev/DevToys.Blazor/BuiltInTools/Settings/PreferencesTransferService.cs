@@ -36,6 +36,8 @@ internal sealed class PreferencesTransferService
         {
             Create(nameof(PredefinedSettings.Language), PredefinedSettings.Language, value => LanguageManager.Instance.AvailableLanguages.Any(language => language.InternalName == value)),
             Create(nameof(PredefinedSettings.Theme), PredefinedSettings.Theme, Enum.IsDefined),
+            Create(nameof(PredefinedSettings.FavoriteToolOrder), PredefinedSettings.FavoriteToolOrder,
+                names => names.All(name => !string.IsNullOrWhiteSpace(name)) && names.Distinct(StringComparer.Ordinal).Count() == names.Length),
             Create(nameof(PredefinedSettings.CompactMode), PredefinedSettings.CompactMode),
             Create(nameof(PredefinedSettings.CheckForUpdate), PredefinedSettings.CheckForUpdate),
             Create(nameof(PredefinedSettings.ShowMostRecentTools), PredefinedSettings.ShowMostRecentTools),
@@ -151,16 +153,7 @@ internal sealed class PreferencesTransferService
                 {
                     Preference preference = key switch
                     {
-                        "isFavorite" when !tool.NotFavorable => Create(
-                            key, () => _tools.GetToolIsFavorite(tool),
-                            favorite =>
-                            {
-                                // SetToolIsFavorite inserts a menu item on every true write.
-                                if (_tools.GetToolIsFavorite(tool) != favorite)
-                                {
-                                    _tools.SetToolIsFavorite(tool, favorite);
-                                }
-                            }),
+                        "isFavorite" when !tool.NotFavorable => CreateFavoritePreference(tool),
                         "searchAliases" when !tool.NotSearchable => Create(
                             key, () => _tools.GetToolSearchAliases(tool).ToArray(),
                             aliases => _tools.TrySetToolSearchAliases(tool, aliases), ValidAliases),
@@ -181,6 +174,32 @@ internal sealed class PreferencesTransferService
         {
             throw new FormatException("Invalid preferences file.", exception);
         }
+    }
+
+    private Preference CreateFavoritePreference(GuiToolInstance tool)
+    {
+        Preference preference = Create("isFavorite", () => _tools.GetToolIsFavorite(tool),
+            favorite => _tools.SetToolIsFavorite(tool, favorite));
+        return preference with
+        {
+            Prepare = element =>
+            {
+                PreferenceChange change = preference.Prepare(element);
+                return change with
+                {
+                    CaptureRestore = () =>
+                    {
+                        Action restoreFavorite = change.CaptureRestore();
+                        string[] order = _settings.GetSetting(PredefinedSettings.FavoriteToolOrder);
+                        return () =>
+                        {
+                            restoreFavorite();
+                            _settings.SetSetting(PredefinedSettings.FavoriteToolOrder, order);
+                        };
+                    }
+                };
+            }
+        };
     }
 
     private Preference Create<T>(string name, SettingDefinition<T> definition, Func<T, bool>? validate = null)

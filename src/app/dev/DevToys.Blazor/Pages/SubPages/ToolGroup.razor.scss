@@ -80,12 +80,13 @@
         max-height: 134px;
         padding: 16px;
         display: grid;
-        grid-template-columns: min-content 1fr min-content;
-        grid-template-rows: min-content 1fr;
+        grid-template-columns: min-content minmax(0, 1fr);
+        grid-template-rows: min-content 1fr min-content;
         gap: 0px 0px;
         grid-template-areas:
-            "icon title buttons"
-            "icon description description";
+            "icon title"
+            "icon description"
+            "icon buttons";
 
         .icon {
             grid-area: icon;
@@ -117,14 +118,15 @@
             margin-right: 8px;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 5;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
         }
 
         .buttons {
             display: flex;
             gap: 4px;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: flex-end;
             grid-area: buttons;
             margin-left: 16px;
             top: 0px;
