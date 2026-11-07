@@ -61,6 +61,33 @@ namespace DevToys.Localization.Strings.ToolGroupPage {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Move earlier in favorites.
+        /// </summary>
+        public static string MoveFavoriteEarlier {
+            get {
+                return ResourceManager.GetString("MoveFavoriteEarlier", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Move later in favorites.
+        /// </summary>
+        public static string MoveFavoriteLater {
+            get {
+                return ResourceManager.GetString("MoveFavoriteLater", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No favorites yet. Add tools using the star on a tool card..
+        /// </summary>
+        public static string NoFavoriteTools {
+            get {
+                return ResourceManager.GetString("NoFavoriteTools", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Clear recent tools.
         /// </summary>
         public static string ClearRecentTools {

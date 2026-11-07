@@ -268,6 +268,10 @@ public sealed partial class GuiToolProvider : IDisposable
         {
             OnRecentToolsChanged();
         }
+        else if (e.SettingName == PredefinedSettings.FavoriteToolOrder.Name)
+        {
+            OnFavoriteToolsChanged();
+        }
         else if (e.SettingName.EndsWith(SearchAliasesSettingSuffix, StringComparison.Ordinal))
         {
             SearchAliasesChanged?.Invoke(this, EventArgs.Empty);
@@ -338,86 +342,6 @@ public sealed partial class GuiToolProvider : IDisposable
                 yield return recentTool3;
             }
         }
-    }
-
-    /// <summary>
-    /// Sets whether the given tool is marked as favorite or not.
-    /// </summary>
-    public void SetToolIsFavorite(GuiToolInstance guiToolInstance, bool isFavorite)
-    {
-        SettingDefinition<bool> isFavoriteSettingDefinition = CreateIsToolFavoriteSettingDefinition(guiToolInstance);
-        _settingsProvider.SetSetting(isFavoriteSettingDefinition, isFavorite);
-
-        // Update the list in the menu.
-        if (_headerAndBodyToolViewItems is not null)
-        {
-            Guard.HasSizeGreaterThan((ICollection<INotifyPropertyChanged>)_headerAndBodyToolViewItems!, 2);
-            Guard.IsNotNull(_headerAndBodyToolViewItems[1]);
-            Guard.IsOfType<SeparatorViewItem>(_headerAndBodyToolViewItems[1]!);
-
-            if (isFavorite) // Add the tool to the favorites
-            {
-                if (_favoriteToolsGroupViewItem is null)
-                {
-                    var newFavoriteToolViewItem = new GuiToolViewItem(guiToolInstance);
-                    CreateFavoriteGroupViewItem(new[] { newFavoriteToolViewItem });
-                    Guard.IsNotNull(_favoriteToolsGroupViewItem);
-                }
-                else
-                {
-                    Guard.IsNotNull(_favoriteToolsGroupViewItem.Children);
-                    var newFavoriteToolViewItem = new GuiToolViewItem(guiToolInstance);
-                    _favoriteToolsGroupViewItem.Children!.Insert(0, newFavoriteToolViewItem);
-                }
-
-                // If the "Favorites" menu item isn't present in the menu, add it after the Recent tools (if any).
-                if (!_headerAndBodyToolViewItems.Contains(_favoriteToolsGroupViewItem))
-                {
-                    int separatorIndex = -1;
-                    if (_separatorAfterRecentTools is not null)
-                    {
-                        separatorIndex = _headerAndBodyToolViewItems.IndexOf(_separatorAfterRecentTools);
-                    }
-                    else
-                    {
-                        Guard.IsNotNull(_separatorAfterAllToolsItem);
-                        separatorIndex = _headerAndBodyToolViewItems.IndexOf(_separatorAfterAllToolsItem);
-                    }
-
-                    _headerAndBodyToolViewItems.Insert(separatorIndex + 1, _favoriteToolsGroupViewItem);
-                }
-            }
-            else // Remove the tool to the favorites
-            {
-                if (_favoriteToolsGroupViewItem is not null)
-                {
-                    Guard.IsNotNull(_favoriteToolsGroupViewItem.Children);
-                    GuiToolViewItem? favoriteToolToRemove = _favoriteToolsGroupViewItem.Children.FirstOrDefault(t => t.ToolInstance == guiToolInstance);
-                    if (favoriteToolToRemove is not null)
-                    {
-                        _favoriteToolsGroupViewItem.Children.Remove(favoriteToolToRemove);
-                    }
-
-                    // If the "Favorites" menu item is empty, remove it from the menu.
-                    if (_favoriteToolsGroupViewItem.Children.Count == 0)
-                    {
-                        _headerAndBodyToolViewItems.Remove(_favoriteToolsGroupViewItem);
-                    }
-                }
-            }
-        }
-
-        FavoriteToolsChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    /// Gets whether the given tool is favorite or not.
-    /// </summary>
-    public bool GetToolIsFavorite(GuiToolInstance guiToolInstance)
-    {
-        Guard.IsNotNull(guiToolInstance);
-        SettingDefinition<bool> isFavoriteSettingDefinition = CreateIsToolFavoriteSettingDefinition(guiToolInstance);
-        return _settingsProvider.GetSetting(isFavoriteSettingDefinition);
     }
 
     /// <summary>
@@ -738,18 +662,9 @@ public sealed partial class GuiToolProvider : IDisposable
 
     private IEnumerable<INotifyPropertyChanged> BuildFavoriteToolViewItems()
     {
-        var favoriteTools = new List<GuiToolViewItem>();
-        for (int i = 0; i < AllTools.Count; i++)
-        {
-            GuiToolInstance tool = AllTools[i];
-            bool isFavorite = GetToolIsFavorite(tool);
-            if (isFavorite)
-            {
-                favoriteTools.Add(new GuiToolViewItem(tool));
-            }
-        }
+        GuiToolViewItem[] favoriteTools = GetFavoriteTools().Select(tool => new GuiToolViewItem(tool)).ToArray();
 
-        if (favoriteTools.Count > 0)
+        if (favoriteTools.Length > 0)
         {
             // Create favorite group.
             yield return CreateFavoriteGroupViewItem(favoriteTools);

@@ -41,10 +41,11 @@ public partial class ToolGroup : MefComponentBase, IFocusable
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        GuiToolProvider.RecentToolsChanged += GuiToolProvider_RecentToolsChanged;
+        GuiToolProvider.RecentToolsChanged += GuiToolProvider_ToolsChanged;
+        GuiToolProvider.FavoriteToolsChanged += GuiToolProvider_ToolsChanged;
     }
 
-    private void GuiToolProvider_RecentToolsChanged(object? sender, EventArgs e)
+    private void GuiToolProvider_ToolsChanged(object? sender, EventArgs e)
     {
         InvokeAsync(() =>
         {
@@ -58,7 +59,8 @@ public partial class ToolGroup : MefComponentBase, IFocusable
 
     public override ValueTask DisposeAsync()
     {
-        GuiToolProvider.RecentToolsChanged -= GuiToolProvider_RecentToolsChanged;
+        GuiToolProvider.RecentToolsChanged -= GuiToolProvider_ToolsChanged;
+        GuiToolProvider.FavoriteToolsChanged -= GuiToolProvider_ToolsChanged;
         return base.DisposeAsync();
     }
 

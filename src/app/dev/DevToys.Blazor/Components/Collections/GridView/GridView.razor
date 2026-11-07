@@ -35,7 +35,7 @@
 
                     foreach (IGrouping<TKey, TElement> group in ItemsSource)
                     {
-                        <section class="grid-view-group">
+                        <section @key="group.Key" class="grid-view-group">
                             <header class="grid-view-group-header">
                                 @if (GroupHeaderTemplate is null)
                                 {
@@ -50,7 +50,7 @@
                             <ul class="grid-view-items-container">
                                 @foreach (TElement item in group)
                                 {
-                                    <li class="grid-view-item"
+                                    <li @key="item" class="grid-view-item"
                                         style="min-width: @ItemMinWidth.ToPx()">
                                         <div class="grid-view-item-hover-filter"
                                              tabindex="0"

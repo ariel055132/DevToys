@@ -95,6 +95,12 @@ public static class PredefinedSettings
             defaultValue: string.Empty);
 
     /// <summary>
+    /// Favorite tool names in the user's preferred order. Missing extensions retain their positions.
+    /// </summary>
+    public static readonly SettingDefinition<string[]> FavoriteToolOrder
+        = new(nameof(FavoriteToolOrder), Array.Empty<string>());
+
+    /// <summary>
     /// Whether the most recent tools should be displayed.
     /// </summary>
     public static readonly SettingDefinition<bool> ShowMostRecentTools

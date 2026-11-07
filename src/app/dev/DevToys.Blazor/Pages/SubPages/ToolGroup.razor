@@ -2,7 +2,11 @@
 @using DevToys.Localization.Strings.ToolGroupPage;
 @using DevToys.Localization.Strings.MainWindow;
 @using DevToys.Blazor.Core.Helpers;
+@using DevToys.Core.Tools;
+@using ToolPageStrings = DevToys.Localization.Strings.ToolPage.ToolPage;
 @inherits MefComponentBase
+
+@{ IReadOnlyList<GuiToolInstance> favorites = GuiToolProvider.GetFavoriteTools(); }
 
 @if (ViewModel.IsAllToolsGroup)
 {
@@ -45,7 +49,13 @@
         </div>
     </GroupHeaderTemplate>
     <GroupedItemTemplate Context="context">
-        @{ var item = context.Item; }
+        @{
+            var item = context.Item;
+            bool isFavorite = GuiToolProvider.GetToolIsFavorite(item);
+            string favoriteAction = isFavorite ? ToolPageStrings.RemoveFromFavorites : ToolPageStrings.AddToFavorites;
+            bool canReorder = isFavorite && (ViewModel.IsFavoriteToolsGroup
+                || (ViewModel.IsAllToolsGroup && context.Key != MainWindow.RecentToolsDisplayTitle));
+        }
         <div class="tool-group-grid-view-item">
             <div class="icon">
                 <FontIcon Height="64"
@@ -59,7 +69,34 @@
             <div class="description">
                 <TextBlock Appearance="@TextBlockAppearance.Caption" Text="@item.Description" />
             </div>
-            <div class="buttons" @onclick:stopPropagation="true">
+            <div class="buttons" @onclick:stopPropagation="true" @onkeydown:stopPropagation="true">
+                @if (canReorder)
+                {
+                    <Button Class="button"
+                            IsEnabled="@(favorites.FirstOrDefault() != item)"
+                            ToolTip="@ToolGroupPage.MoveFavoriteEarlier"
+                            aria-label="@(ToolGroupPage.MoveFavoriteEarlier + ": " + item.LongOrShortDisplayTitle)"
+                            @onclick="() => GuiToolProvider.MoveFavoriteTool(item, moveEarlier: true)">
+                        <span aria-hidden="true">↑</span>
+                    </Button>
+                    <Button Class="button"
+                            IsEnabled="@(favorites.LastOrDefault() != item)"
+                            ToolTip="@ToolGroupPage.MoveFavoriteLater"
+                            aria-label="@(ToolGroupPage.MoveFavoriteLater + ": " + item.LongOrShortDisplayTitle)"
+                            @onclick="() => GuiToolProvider.MoveFavoriteTool(item, moveEarlier: false)">
+                        <span aria-hidden="true">↓</span>
+                    </Button>
+                }
+                @if (!item.NotFavorable)
+                {
+                    <Button Class="button"
+                            ToolTip="@favoriteAction"
+                            aria-label="@(favoriteAction + ": " + item.LongOrShortDisplayTitle)"
+                            aria-pressed="@(isFavorite ? "true" : "false")"
+                            @onclick="() => GuiToolProvider.SetToolIsFavorite(item, !isFavorite)">
+                        <FontIcon Class="fonticon" Glyph="@(isFavorite ? '\uF71A' : '\uF70F')" />
+                    </Button>
+                }
                 @if (ViewModel.IsAllToolsGroup && context.Key == MainWindow.RecentToolsDisplayTitle)
                 {
                     <Button Class="button"
@@ -81,6 +118,10 @@
         </div>
     </GroupedItemTemplate>
     <Footer>
+        @if (ViewModel.IsFavoriteToolsGroup && !GuiToolProvider.GetFavoriteTools().Any())
+        {
+            <TextBlock Text="@ToolGroupPage.NoFavoriteTools" />
+        }
         @if (ViewModel.IsAllToolsGroup)
         {
             <InfoBar Severity="InfoBarSeverity.Informational"

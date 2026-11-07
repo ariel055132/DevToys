@@ -24,6 +24,57 @@ public class PreferencesTransferServiceTests : MefBasedTest
     }
 
     [Fact]
+    public void FailedPartialImportRestoresFavoriteOrderAsWellAsMembership()
+    {
+        GuiToolInstance[] tools = _tools.AllTools.Take(2).ToArray();
+        foreach (GuiToolInstance tool in tools)
+        {
+            _tools.SetToolIsFavorite(tool, true);
+        }
+        string backup = _transfer.Export();
+        bool failOnce = true;
+        _settings.SettingChanged += (_, args) =>
+        {
+            if (args.SettingName.EndsWith("_SearchAliases", StringComparison.Ordinal) && failOnce)
+            {
+                failOnce = false;
+                throw new IOException("Simulated failure after changing favorites.");
+            }
+        };
+        PreferencesImport import = _transfer.PrepareImport(File("",
+            "\"MockTool\":{\"isFavorite\":false,\"searchAliases\":[\"new alias\"]}"));
+
+        Action apply = import.Apply;
+        apply.Should().Throw<AggregateException>();
+
+        _tools.GetFavoriteTools().Should().Equal(tools);
+        _transfer.Export().Should().Be(backup);
+    }
+
+    [Fact]
+    public void ExportImportRestoresFavoriteOrderAndUpdatesExistingMenu()
+    {
+        GuiToolInstance[] tools = _tools.AllTools.Take(3).ToArray();
+        foreach (GuiToolInstance tool in tools)
+        {
+            _tools.SetToolIsFavorite(tool, true);
+        }
+        _tools.MoveFavoriteTool(tools[2], true);
+        _tools.MoveFavoriteTool(tools[2], true);
+        string backup = _transfer.Export();
+        _tools.SetToolIsFavorite(tools[2], false);
+        _tools.MoveFavoriteTool(tools[0], false);
+        var menu = _tools.HeaderAndBodyToolViewItems;
+
+        _transfer.PrepareImport(backup).Apply();
+
+        _tools.GetFavoriteTools().Should().Equal(tools[2], tools[0], tools[1]);
+        menu.OfType<GroupViewItem>().Single(group => group.InternalName == "FavoriteTools")
+            .Children.Select(item => item.ToolInstance).Should().Equal(tools[2], tools[0], tools[1]);
+        _transfer.Export().Should().Be(backup);
+    }
+
+    [Fact]
     public void ExportImportRoundTripRestoresPreferencesAndLeavesNonPreferencesUntouched()
     {
         GuiToolInstance tool = _tools.AllTools[0];

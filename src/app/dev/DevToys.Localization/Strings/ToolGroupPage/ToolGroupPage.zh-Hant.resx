@@ -138,4 +138,13 @@
   <data name="ClearRecentTools" xml:space="preserve">
     <value>清空最近工具</value>
   </data>
+  <data name="MoveFavoriteEarlier" xml:space="preserve">
+    <value>在收藏中往前移</value>
+  </data>
+  <data name="MoveFavoriteLater" xml:space="preserve">
+    <value>在收藏中往後移</value>
+  </data>
+  <data name="NoFavoriteTools" xml:space="preserve">
+    <value>尚無收藏。請使用工具卡片上的星號加入收藏。</value>
+  </data>
 </root>
